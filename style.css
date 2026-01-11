@@ -1,0 +1,335 @@
+@font-face {
+    font-family: 'Twitchy';
+    src: url("Twitchy.TV (1).ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    /* Deeper, darker midnight blue gradient */
+    background: linear-gradient(180deg, #000000 0%, #000510 100%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#snowCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Allows interaction with elements underneath if needed later */
+    z-index: 1;
+}
+
+#site-title {
+    position: fixed;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 11;
+    font-family: 'Twitchy', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #f5f5f5;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+    user-select: none;
+}
+
+#game-meta {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto 6px auto;
+    padding: 0 8px;
+    box-sizing: border-box;
+    z-index: 11;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: rgba(229, 231, 235, 0.9);
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#gallery-wrapper {
+    position: relative;
+    margin-top: 60px;
+    width: 100%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(4px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#all-games-section {
+    position: relative;
+    margin-top: 40px;
+    padding: 20px 10px 40px;
+    z-index: 5;
+}
+
+#game-search-wrapper {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto 16px auto;
+    padding: 0 6px;
+    box-sizing: border-box;
+}
+
+#game-search {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(4, 6, 15, 0.9);
+    color: #f5f5f5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    outline: none;
+    box-shadow: 0 0 14px rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+}
+
+#search-suggestions {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 6px;
+    width: 100%;
+    max-width: 720px;
+    padding: 6px;
+    box-sizing: border-box;
+    background: rgba(4, 6, 15, 0.96);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
+    display: none;
+    z-index: 20;
+}
+
+.search-suggestion-item {
+    width: 100%;
+    padding: 6px 10px;
+    margin: 0;
+    border: none;
+    background: transparent;
+    text-align: left;
+    color: #e5e7eb;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.search-suggestion-item:hover,
+.search-suggestion-item:focus-visible {
+    background: rgba(31, 41, 55, 0.9);
+    outline: none;
+    color: #f9fafb;
+}
+
+#game-search::placeholder {
+    color: rgba(245, 245, 245, 0.55);
+}
+
+#game-search:focus {
+    border-color: rgba(209, 250, 229, 0.7);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+#all-games-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0 6px;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+}
+
+.game-launcher.cover-only {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    max-width: 260px;            /* keep square cards a manageable size */
+    align-self: start;           /* prevent stretching in grid rows */
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.6);
+}
+
+/* Faux “image” background layer for square buttons
+   If a launcher hasn't set --card-image, use a sensible fallback so every card shows a cover. */
+.game-launcher.cover-only::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* Use the launcher-specific --card-image if set; otherwise fall back to Random_card.png then to a generic game_card.png */
+    background-image: var(--card-image, url("Random_card.png"));
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-origin: center;
+}
+
+/* Dark overlay that fades in on hover, like the auto scroll cards */
+.game-launcher.cover-only::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.3s ease;
+}
+
+/* Match the hover “zoom + darken” feel of the auto-scroll buttons */
+.game-launcher.cover-only:hover::before {
+    transform: scale(1.05);
+}
+
+.game-launcher.cover-only:hover::after {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.game-launcher.cover-only .cover-label {
+    position: relative;
+    z-index: 1;
+    padding: 0 8px;
+    text-align: center;
+    font-family: 'Twitchy', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #f5f5f5;
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
+    transition: transform 0.3s ease;
+    /* hide on-card label so buttons don't show the game name */
+    display: none;
+    mix-blend-mode: overlay;
+}
+
+/* Slight pop on text when hovering, to match the card emphasis */
+.game-launcher.cover-only:hover .cover-label {
+    transform: scale(1.03);
+}
+
+#games-container {
+    display: flex;
+    gap: 30px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 20px 20px;
+    box-sizing: border-box;
+    align-items: center;
+    width: 100%;
+    max-width: 90vw;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+#games-container::-webkit-scrollbar {
+    display: none;
+}
+
+.game-launcher {
+    flex-shrink: 0;
+    width: 250px;
+    max-width: 80vw;
+    cursor: pointer;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    position: relative;
+    background: #000;
+}
+
+.game-launcher img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    aspect-ratio: 3/4;
+}
+
+/* Fallback background cover style for launchers that use background-image instead of <img> */
+.game-launcher.bg-cover {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 320px; /* ensures a visible cover area */
+    display: block;
+}
+
+.game-launcher:hover {
+    transform: scale(1.05);
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.game-launcher:hover .overlay {
+    opacity: 1;
+}
+
+.game-title {
+    display: none; /* Hide on-card title; tooltip still uses its text */
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    user-select: none;
+}
+
+#game-tooltip {
+    position: fixed;
+    z-index: 2000;
+    pointer-events: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(10, 10, 15, 0.95);
+    color: #f5f5f5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold; /* Bold game name when hovering */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
